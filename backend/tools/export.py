@@ -64,6 +64,17 @@ TEMPLATE_STYLE: dict[str, dict] = {
     "frontend_ui":         {"layout": "sidebar",       "accent": "#ec4899"},
     "data_ml":             {"layout": "modern-bar",    "accent": "#2563eb"},
     "ro_signature":        {"layout": "shaded-header", "accent": "#1a1a1a"},
+    # City Series
+    "dublin_classic":      {"layout": "serif-classic", "accent": "#0d9488"},
+    "sydney_modern":       {"layout": "sidebar",       "accent": "#1e3a5f"},
+    "paris_elegant":       {"layout": "serif-classic", "accent": "#7c2d44"},
+    "chicago_bold":        {"layout": "modern-bar",    "accent": "#1e293b"},
+    "toronto_professional":{"layout": "modern-bar",    "accent": "#3730a3"},
+    "milan_executive":     {"layout": "serif-classic", "accent": "#78716c"},
+    # Specialized Industry
+    "federal_gov":         {"layout": "structured",    "accent": "#1e3a5f"},
+    "healthcare_clinical": {"layout": "minimal",       "accent": "#0891b2"},
+    "educator_teacher":    {"layout": "serif-classic", "accent": "#15803d"},
 }
 
 
