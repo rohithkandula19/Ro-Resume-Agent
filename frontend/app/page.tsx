@@ -131,6 +131,7 @@ export default function Page() {
   const [scan, setScan] = useState<any>(null);
   const [atsScoreNum, setAtsScoreNum] = useState(0);
   const [atsDetail, setAtsDetail] = useState<any>(null);
+  const [originalAtsScore, setOriginalAtsScore] = useState<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -276,7 +277,7 @@ export default function Page() {
       setBuildError("Upload your resume or type a role first.");
       return;
     }
-    setBuilding(true); setBuildError("");
+    setBuilding(true); setBuildError(""); setOriginalAtsScore(null);
     let res: any = null;
     try {
       const kws = Array.from(new Set([...(mustIncludeKeywords || []), ...(opts.extraKeywords || [])]));
@@ -299,10 +300,17 @@ export default function Page() {
     const jobs: Promise<any>[] = [];
     if (jdText) jobs.push(runXray(res.resume, jdText).then(setXray).catch(e => console.warn("xray failed", e)));
     const tailoredText = resumeJsonToText(res.resume) || resumeText;
+    // Score the tailored resume (primary) and the original baseline in parallel
     jobs.push(atsScore(tailoredText, jdText, res.files_base64?.styled_pdf)
       .then(a => { setAtsDetail(a); setAtsScoreNum(a.composite ?? 0); })
       .catch(e => console.warn("ats-score failed", e)));
-jobs.push(runScan(res.resume).then(setScan).catch(e => console.warn("scan failed", e)));
+    if (res.original_resume && jdText) {
+      const origText = resumeJsonToText(res.original_resume) || resumeText;
+      jobs.push(atsScore(origText, jdText, res.files_base64?.original_pdf)
+        .then(a => setOriginalAtsScore(a.composite ?? null))
+        .catch(() => {}));
+    }
+    jobs.push(runScan(res.resume).then(setScan).catch(e => console.warn("scan failed", e)));
     await Promise.allSettled(jobs);
     hasBuiltOnce.current = true;
     setBuilding(false);
@@ -464,6 +472,14 @@ jobs.push(runScan(res.resume).then(setScan).catch(e => console.warn("scan failed
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1 space-y-2">
             <ATSDial score={atsScoreNum} label="Composite ATS Score" />
+            {originalAtsScore !== null && atsScoreNum > 0 && (
+              <div className="text-center text-sm text-white/60">
+                Before tailoring: <span className="text-white/80 font-mono">{originalAtsScore}</span>
+                {atsScoreNum > originalAtsScore && (
+                  <span className="ml-2 text-emerald-400 font-semibold">▲ +{atsScoreNum - originalAtsScore} improved</span>
+                )}
+              </div>
+            )}
             {buildResult && jdText && (
               <button
                 onClick={autoOptimize}
