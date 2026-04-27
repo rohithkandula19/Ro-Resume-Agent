@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "RO Resume Agent — Save Jobs",
+  "version": "0.2.0",
+  "description": "One-click analyze jobs from LinkedIn, Greenhouse, Lever, Indeed, Wellfound, and more — or save them to RO Resume Agent.",
+  "permissions": ["activeTab", "storage", "scripting", "tabs", "windows"],
+  "host_permissions": [
+    "*://*.linkedin.com/*",
+    "*://*.greenhouse.io/*",
+    "*://boards.greenhouse.io/*",
+    "*://*.lever.co/*",
+    "*://*.indeed.com/*",
+    "*://*.wellfound.com/*",
+    "*://*.ycombinator.com/*",
+    "*://*.ashbyhq.com/*",
+    "*://jobs.ashbyhq.com/*",
+    "*://*.workable.com/*",
+    "*://*.smartrecruiters.com/*",
+    "http://localhost:3010/*",
+    "http://localhost:8000/*",
+    "http://127.0.0.1:3010/*",
+    "http://127.0.0.1:8000/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["http://localhost:3010/*", "http://127.0.0.1:3010/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_title": "RO Resume Agent",
+    "default_popup": "popup.html"
+  }
+}

@@ -1,0 +1,22 @@
+[project]
+enable_telemetry = false
+user_env = []
+session_timeout = 3600
+
+[features]
+prompt_playground = false
+multi_modal = true
+
+[UI]
+name = "RO Resume Agent"
+description = "Your interactive AI resume consultant"
+default_collapse_content = true
+default_expand_messages = false
+hide_cot = true
+
+# allow embedding in Next.js
+[meta]
+generated_by = "chainlit"
+
+[project.ui.theme]
+default = "light"

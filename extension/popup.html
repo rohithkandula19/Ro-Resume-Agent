@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>RO Resume Agent</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <span class="logo">RO</span>
+      <span class="title">Resume Agent</span>
+    </div>
+    <a id="openApp" href="#" class="muted">Open app ↗</a>
+  </header>
+
+  <!-- Primary action — no auth needed -->
+  <section class="card" id="quick-section">
+    <div class="row">
+      <div>
+        <div class="h" id="page-title">Current page</div>
+        <div class="muted" id="page-host">—</div>
+      </div>
+      <button id="rescan-quick" class="ghost" style="font-size:11px;padding:4px 8px;">Re-scan</button>
+    </div>
+    <div id="scraped-preview" class="muted" style="font-size:11px;margin-bottom:8px;min-height:16px;"></div>
+    <button id="analyze-btn" class="primary" style="width:100%;">⚡ Analyze this job in app</button>
+    <div id="analyzeMsg" class="msg"></div>
+  </section>
+
+  <!-- Divider -->
+  <div class="section-label">SAVE TO TRACKER (requires sign-in)</div>
+
+  <!-- Auth: connect -->
+  <section id="connect" class="card hidden">
+    <div class="h">Connect extension</div>
+    <p class="muted" style="margin:4px 0 8px;">
+      Sign into the app → click your avatar → <strong>Connect Extension</strong> to get a token.
+    </p>
+    <label>API URL</label>
+    <input id="apiBase" type="text" placeholder="http://localhost:8010" />
+    <label>Token</label>
+    <input id="token" type="password" placeholder="Paste token from app…" />
+    <button id="saveToken" class="primary" style="margin-top:8px;width:100%;">Sign in</button>
+    <div id="connectMsg" class="msg"></div>
+  </section>
+
+  <!-- Signed-in: save job -->
+  <section id="scan" class="card hidden">
+    <div class="row">
+      <div>
+        <div class="h" id="save-title">Save job</div>
+        <div class="muted" id="save-host">—</div>
+      </div>
+      <button id="disconnect" class="ghost" style="font-size:11px;padding:4px 8px;">Sign out</button>
+    </div>
+
+    <label>Company</label>
+    <input id="company" type="text" />
+    <label>Role</label>
+    <input id="role" type="text" />
+    <label>Status</label>
+    <select id="status">
+      <option value="saved">Saved</option>
+      <option value="applied">Applied</option>
+      <option value="interview">Interview</option>
+      <option value="offer">Offer</option>
+      <option value="rejected">Rejected</option>
+      <option value="withdrawn">Withdrawn</option>
+    </select>
+    <label>Notes</label>
+    <textarea id="notes" rows="2" placeholder="Optional notes"></textarea>
+
+    <details>
+      <summary>JD text <span class="muted" id="jdCount"></span></summary>
+      <textarea id="jd" rows="5"></textarea>
+    </details>
+
+    <div class="actions">
+      <button id="save" class="primary">Save job</button>
+      <button id="rescan" class="ghost">Re-scan</button>
+    </div>
+    <div id="scanMsg" class="msg"></div>
+  </section>
+
+  <script src="popup.js"></script>
+</body>
+</html>
