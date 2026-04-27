@@ -67,6 +67,27 @@ function savePersisted(data: any) {
   catch { /* quota exceeded — silent */ }
 }
 
+function resumeJsonToText(resume: any): string {
+  if (!resume || typeof resume !== "object") return "";
+  const parts: string[] = [];
+  if (resume.name) parts.push(resume.name);
+  if (resume.summary) parts.push(resume.summary);
+  if (Array.isArray(resume.skills)) parts.push(resume.skills.join(" "));
+  for (const exp of resume.experience || []) {
+    parts.push([exp.title, exp.org, exp.dates].filter(Boolean).join(" "));
+    for (const b of exp.bullets || []) parts.push(b);
+  }
+  for (const proj of resume.projects || []) {
+    parts.push([proj.title, proj.org].filter(Boolean).join(" "));
+    for (const b of proj.bullets || []) parts.push(b);
+  }
+  for (const edu of resume.education || []) {
+    parts.push([edu.degree, edu.school, edu.dates].filter(Boolean).join(" "));
+  }
+  if (Array.isArray(resume.certifications)) parts.push(resume.certifications.join(" "));
+  return parts.join("\n");
+}
+
 function downloadFile(b64: string | undefined, filename: string, mime: string) {
   if (!b64) return;
   const bin = atob(b64);
@@ -277,7 +298,8 @@ export default function Page() {
     // Build succeeded — downstream analyses are best-effort, never block the UI.
     const jobs: Promise<any>[] = [];
     if (jdText) jobs.push(runXray(res.resume, jdText).then(setXray).catch(e => console.warn("xray failed", e)));
-    jobs.push(atsScore(resumeText, jdText, res.files_base64?.styled_pdf)
+    const tailoredText = resumeJsonToText(res.resume) || resumeText;
+    jobs.push(atsScore(tailoredText, jdText, res.files_base64?.styled_pdf)
       .then(a => { setAtsDetail(a); setAtsScoreNum(a.composite ?? 0); })
       .catch(e => console.warn("ats-score failed", e)));
 jobs.push(runScan(res.resume).then(setScan).catch(e => console.warn("scan failed", e)));

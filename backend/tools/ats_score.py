@@ -170,13 +170,13 @@ def composite_ats_score(client, resume_text: str, jd_text: str,
         composite = round(struct["score"] * 0.60 + parse["score"] * 0.40)
 
     # Human-readable verdict
-    if composite >= 85:
+    if composite >= 80:
         verdict = "Ready to send"
-    elif composite >= 70:
-        verdict = "Strong — minor polish"
-    elif composite >= 55:
-        verdict = "Passable — needs targeted fixes"
-    elif composite >= 40:
+    elif composite >= 65:
+        verdict = "Strong match"
+    elif composite >= 48:
+        verdict = "Good progress"
+    elif composite >= 35:
         verdict = "Needs work"
     else:
         verdict = "Major rewrite needed"
