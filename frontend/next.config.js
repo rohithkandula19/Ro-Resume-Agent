@@ -1,13 +1,18 @@
 /** @type {import('next').NextConfig} */
+const isProd = process.env.NODE_ENV === "production";
+
 const nextConfig = {
   reactStrictMode: true,
+  // Static export for Firebase Hosting — set OUTPUT=export when building for prod.
+  ...(process.env.OUTPUT === "export" ? { output: "export" } : {}),
   async rewrites() {
+    // In dev, proxy /api/* to the local FastAPI server.
+    // In Firebase Hosting, firebase.json rewrites handle /api/* → Cloud Run.
+    if (isProd) return [];
     return [
-      // Use 127.0.0.1 (not localhost) — macOS resolves localhost to ::1 first,
-      // which collides with anything Docker binds on IPv6. Port 8010 keeps us
-      // clear of the infra-api-1 container on :8000.
       { source: "/api/:path*", destination: "http://127.0.0.1:8010/api/:path*" },
     ];
   },
 };
+
 module.exports = nextConfig;

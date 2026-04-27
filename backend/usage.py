@@ -100,18 +100,15 @@ def record(provider: str, model: str, prompt_tokens: int,
     """Insert one usage row. Swallows all errors — never break the LLM call path."""
     try:
         ctx = _ctx.get() or {}
-        total = (prompt_tokens or 0) + (completion_tokens or 0)
         cost = _cost(model, prompt_tokens or 0, completion_tokens or 0)
-        with _db.tx() as c:
-            c.execute(
-                """INSERT INTO llm_usage
-                   (user_id, endpoint, provider, model, prompt_tokens,
-                    completion_tokens, total_tokens, cost_usd, created_at)
-                   VALUES (?,?,?,?,?,?,?,?,?)""",
-                (ctx.get("user_id"), ctx.get("endpoint", ""), provider, model,
-                 prompt_tokens or 0, completion_tokens or 0, total, cost,
-                 int(time.time())),
-            )
+        _db.log_usage(
+            ctx.get("user_id"),
+            ctx.get("endpoint", ""),
+            provider, model,
+            prompt_tokens or 0,
+            completion_tokens or 0,
+            cost,
+        )
     except Exception:
         pass
 

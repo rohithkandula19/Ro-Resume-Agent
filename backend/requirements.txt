@@ -15,3 +15,5 @@ striprtf>=0.0.26
 beautifulsoup4>=4.12
 pytesseract>=0.3.10
 chainlit>=1.0.0
+firebase-admin>=6.5.0
+google-cloud-firestore>=2.16.0

@@ -1,43 +1,37 @@
-"""Simple file-based session storage + version history."""
+"""Anonymous session storage backed by Firestore (replaces local JSON files)."""
 
-import json
-import os
 import time
 import uuid
-from pathlib import Path
 from typing import Any
 
-BASE = Path(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) / "output" / "sessions"
-BASE.mkdir(parents=True, exist_ok=True)
+from firebase_init import get_db
+from google.cloud import firestore as _fs
 
 
 def new_session_id() -> str:
     return uuid.uuid4().hex[:12]
 
 
-def _path(sid: str) -> Path:
-    return BASE / f"{sid}.json"
-
-
 def load(sid: str) -> dict:
-    p = _path(sid)
-    if not p.exists():
+    doc = get_db().collection("sessions").document(sid).get()
+    if not doc.exists:
         return {"id": sid, "versions": [], "state": {}}
-    return json.loads(p.read_text())
+    return doc.to_dict()
 
 
 def save(sid: str, data: dict) -> None:
-    _path(sid).write_text(json.dumps(data, indent=2))
+    get_db().collection("sessions").document(sid).set(data)
 
 
 def update_state(sid: str, **kwargs) -> dict:
     data = load(sid)
-    data["state"].update(kwargs)
+    data.setdefault("state", {}).update(kwargs)
     save(sid, data)
     return data
 
 
-def add_version(sid: str, label: str, resume: dict, meta: dict[str, Any] | None = None) -> dict:
+def add_version(sid: str, label: str, resume: dict,
+                meta: dict[str, Any] | None = None) -> dict:
     data = load(sid)
     version = {
         "id": uuid.uuid4().hex[:8],

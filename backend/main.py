@@ -81,7 +81,7 @@ async def _usage_context_middleware(request: _Req, call_next):
         try:
             user = _auth.user_from_token(token)
             if user:
-                user_id = user["id"]
+                user_id = user.get("uid")
         except Exception:
             user_id = None
     _usage.set_context(user_id, request.url.path)

@@ -1,33 +1,27 @@
 // Typed API client for RO Resume Agent backend.
 
-const BASE = "/api"; // proxied by next.config.js rewrites
+import { auth } from "./firebase";
 
-const AUTH_KEY = "ro-auth-token";
+const BASE = "/api"; // proxied by next.config.js in dev; Firebase Hosting rewrites in prod
 
-export function getAuthToken(): string {
-  if (typeof window === "undefined") return "";
-  try { return localStorage.getItem(AUTH_KEY) || ""; } catch { return ""; }
-}
-
-export function setAuthToken(token: string) {
-  if (typeof window === "undefined") return;
+async function getAuthToken(): Promise<string> {
   try {
-    if (token) localStorage.setItem(AUTH_KEY, token);
-    else localStorage.removeItem(AUTH_KEY);
-  } catch {}
+    return (await auth.currentUser?.getIdToken()) ?? "";
+  } catch {
+    return "";
+  }
 }
 
-function authHeaders(): Record<string, string> {
-  const t = getAuthToken();
+// Kept for compatibility with any callers that set/get a token manually.
+export function setAuthToken(_token: string) {}
+export function getAuthToken_legacy(): string { return ""; }
+
+async function authHeaders(): Promise<Record<string, string>> {
+  const t = await getAuthToken();
   return t ? { Authorization: `Bearer ${t}` } : {};
 }
 
-const AUTH_PATHS_EXEMPT = new Set(["/auth/login", "/auth/signup", "/auth/request-reset", "/auth/reset-password"]);
-
-function handle401(path: string) {
-  // Session expired — clear token and notify the app so AuthModal reappears.
-  if (AUTH_PATHS_EXEMPT.has(path)) return;
-  setAuthToken("");
+function handle401() {
   if (typeof window !== "undefined") {
     window.dispatchEvent(new CustomEvent("ro-auth-expired"));
   }
@@ -36,10 +30,10 @@ function handle401(path: string) {
 async function post<T>(path: string, body: any): Promise<T> {
   const r = await fetch(`${BASE}${path}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: { "Content-Type": "application/json", ...(await authHeaders()) },
     body: JSON.stringify(body),
   });
-  if (r.status === 401) handle401(path);
+  if (r.status === 401) handle401();
   if (!r.ok) {
     const text = await r.text().catch(() => "");
     console.error(`${path} ${r.status}:`, text);
@@ -49,8 +43,8 @@ async function post<T>(path: string, body: any): Promise<T> {
 }
 
 async function get<T>(path: string): Promise<T> {
-  const r = await fetch(`${BASE}${path}`, { headers: authHeaders() });
-  if (r.status === 401) handle401(path);
+  const r = await fetch(`${BASE}${path}`, { headers: await authHeaders() });
+  if (r.status === 401) handle401();
   if (!r.ok) {
     const text = await r.text().catch(() => "");
     console.error(`${path} ${r.status}:`, text);
@@ -60,8 +54,8 @@ async function get<T>(path: string): Promise<T> {
 }
 
 async function del<T>(path: string): Promise<T> {
-  const r = await fetch(`${BASE}${path}`, { method: "DELETE", headers: authHeaders() });
-  if (r.status === 401) handle401(path);
+  const r = await fetch(`${BASE}${path}`, { method: "DELETE", headers: await authHeaders() });
+  if (r.status === 401) handle401();
   if (!r.ok) {
     const text = await r.text().catch(() => "");
     throw new Error(`${path} failed: ${r.status} ${text.slice(0, 200)}`);
@@ -71,7 +65,7 @@ async function del<T>(path: string): Promise<T> {
 
 // ---------- auth ----------
 export type AuthUser = {
-  id: number;
+  id: string;  // Firebase UID
   email: string;
   name: string;
   created_at: number;
@@ -86,29 +80,14 @@ export type AuthUser = {
   };
 };
 
-export async function authSignup(email: string, password: string, name: string) {
-  return post<{ token: string; user: AuthUser }>("/auth/signup", { email, password, name });
-}
-export async function authLogin(email: string, password: string) {
-  return post<{ token: string; user: AuthUser }>("/auth/login", { email, password });
-}
 export async function authLogout() {
-  try { await post<any>("/auth/logout", {}); } catch {}
-  setAuthToken("");
+  await auth.signOut().catch(() => {});
 }
 export async function authMe() {
   return get<AuthUser>("/auth/me");
 }
 export async function authExtractProfile(resume_text: string) {
   return post<{ profile: AuthUser["profile"] }>("/auth/extract-profile", { resume_text });
-}
-export async function authRequestReset(email: string) {
-  return post<{ ok: boolean; message: string; dev_token?: string; dev_note?: string }>(
-    "/auth/request-reset", { email },
-  );
-}
-export async function authResetPassword(token: string, new_password: string) {
-  return post<{ ok: boolean }>("/auth/reset-password", { token, new_password });
 }
 
 // ---------- per-user sessions ----------
@@ -146,7 +125,7 @@ export async function listDownloads() {
 // ---------- applications tracker ----------
 export type AppStatus = "saved" | "applied" | "interview" | "offer" | "rejected" | "withdrawn";
 export type Application = {
-  id: number;
+  id: string;  // Firestore document ID
   session_id: string | null;
   company: string;
   role: string;
@@ -164,26 +143,26 @@ export async function listApplications() {
   return get<Application[]>("/me/applications");
 }
 export async function createApplication(body: Partial<Application>) {
-  return post<{ id: number; updated_at: number }>("/me/applications", body);
+  return post<{ id: string; updated_at: number }>("/me/applications", body);
 }
-export async function updateApplication(id: number, body: Partial<Application>) {
+export async function updateApplication(id: string, body: Partial<Application>) {
   const path = `/me/applications/${id}`;
   const r = await fetch(`${BASE}${path}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: { "Content-Type": "application/json", ...(await authHeaders()) },
     body: JSON.stringify(body),
   });
-  if (r.status === 401) handle401(path);
+  if (r.status === 401) handle401();
   if (!r.ok) throw new Error(`patch failed: ${r.status}`);
   return r.json() as Promise<{ ok: boolean; updated_at: number }>;
 }
-export async function deleteApplication(id: number) {
+export async function deleteApplication(id: string) {
   return del<any>(`/me/applications/${id}`);
 }
 
 // ---------- offers ----------
 export type Offer = {
-  id: number;
+  id: string;  // Firestore document ID
   company: string;
   role: string;
   location: string;
@@ -206,9 +185,9 @@ export async function listOffers() {
   return get<Offer[]>("/me/offers");
 }
 export async function upsertOffer(body: Partial<Offer> & { company: string; role: string }) {
-  return post<{ id: number; updated_at: number }>("/me/offers", body);
+  return post<{ id: string; updated_at: number }>("/me/offers", body);
 }
-export async function deleteOffer(id: number) {
+export async function deleteOffer(id: string) {
   return del<any>(`/me/offers/${id}`);
 }
 
