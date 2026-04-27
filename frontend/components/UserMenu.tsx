@@ -17,7 +17,7 @@ export default function UserMenu({
   const initials = (user.name || user.email).slice(0, 2).toUpperCase();
 
   const copyToken = async () => {
-    const t = getAuthToken();
+    const t = await getAuthToken();
     if (!t) return;
     try {
       await navigator.clipboard.writeText(t);

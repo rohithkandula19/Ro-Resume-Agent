@@ -72,7 +72,7 @@ def _client_id(request: Request, authorization: Optional[str]) -> str:
     token = _auth._extract_token(authorization)
     user = _auth.user_from_token(token) if token else None
     if user:
-        return f"u{user['id']}"
+        return f"u{user['uid']}"
     fwd = request.headers.get("x-forwarded-for", "").split(",")[0].strip()
     host = fwd or (request.client.host if request.client else "unknown")
     return f"ip:{host}"

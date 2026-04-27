@@ -10,13 +10,31 @@ env/
 # Logs
 logs/
 *.log
+/tmp/
 
 # OS
 .DS_Store
+Thumbs.db
 
 # Claude
 .claude/
 
-# Environment
+# Environment / secrets
 .env
 *.env
+.env.local
+.env.*.local
+*firebase-adminsdk*.json
+
+# Next.js
+frontend/.next/
+frontend/out/
+
+# Firebase
+.firebase/
+
+# Node
+node_modules/
+
+# Build artifacts
+backend/output/

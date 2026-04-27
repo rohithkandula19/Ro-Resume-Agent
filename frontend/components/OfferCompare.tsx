@@ -60,7 +60,7 @@ export default function OfferCompare() {
     finally { setBusy(false); }
   };
 
-  const remove = async (id: number) => {
+  const remove = async (id: string) => {
     if (!confirm("Delete this offer?")) return;
     try { await deleteOffer(id); await load(); } catch {}
   };

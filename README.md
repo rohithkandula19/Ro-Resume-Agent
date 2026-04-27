@@ -1,148 +1,191 @@
-# Ro Resume Agent
+# RO Resume Agent
 
-An AI-powered resume optimization and career management platform. Tailor resumes to job descriptions, score ATS compatibility, practice mock interviews, track applications, and generate cover letters — all from one tool.
+An AI-powered resume building platform that tailors your resume to any job description, scores it against ATS systems, and helps you land more interviews.
 
----
-
-## Features
-
-- **Resume Tailoring** — LLM-powered bullet rewriting matched to a target JD, with hallucination detection
-- **ATS Scoring** — composite scoring, preflight checks, template/font recommendations, real parser ground truth
-- **Gap Analysis** — compare your profile against a JD and surface weak or missing signals
-- **AI Chat Consultant** — streaming chat with full resume + JD context injected
-- **Interview Prep** — question generation + interactive mock interview with feedback
-- **Cover Letter Generator** — JD-specific, 3-paragraph, under 250 words
-- **LinkedIn Pack** — headline, about, skills, and bullet reframes in one shot
-- **Achievement Miner** — Socratic Q&A to pull forgotten metrics and impact statements
-- **Role Fit Radar** — visual match strength across key dimensions
-- **GitHub Import** — fetch repos and auto-summarize for resume bullets
-- **Persona Review** — see feedback from a startup CTO, enterprise recruiter, or hiring manager
-- **Application Tracker** — save jobs with status, salary, and notes
-- **Chrome Extension** — one-click JD scraping from LinkedIn, Greenhouse, Lever, Indeed, and more
-- **Version History** — save and diff resume iterations within a session
-- **Export** — styled DOCX/PDF + ATS-safe plain versions
+**Live demo:** https://ro-resume-agent937.web.app
 
 ---
 
-## Tech Stack
+## What it does
 
-| Layer | Stack |
+- **AI Resume Builder** — paste your experience + a job description, get a fully tailored resume in seconds
+- **ATS Score** — composite score across 6 ATS dimensions with actionable breakdown
+- **Battle Mode** — compare your resume head-to-head against the job description
+- **X-Ray Overlay** — visualize exactly which keywords land and which miss
+- **ATS Scan Simulator** — see your resume as an ATS parser sees it
+- **Persona Reviews** — get feedback from Google, Amazon, McKinsey, startup founder personas
+- **Cover Letter Generator** — tailored cover letters with tone control
+- **LinkedIn Pack** — headline, summary, and about section optimized for your target role
+- **Interview Prep** — role-specific questions, STAR stories, weak spots, and mock interviews
+- **Offer Compare** — weighted scoring across comp, growth, culture, WLB, and learning
+- **Application Tracker** — track saved, applied, interview, offer, and rejected applications
+- **Resume Editor** — AI-assisted bullet rewrites, summary drafts, skill suggestions
+- **Session History** — every version saved with diff comparison
+- **40+ resume templates** — FAANG, consulting, finance, creative, global formats
+
+---
+
+## Tech stack
+
+| Layer | Technology |
 |---|---|
-| Backend | FastAPI, Uvicorn, Python 3.12+ |
-| LLM Routing | Groq → OpenRouter (free) → OpenAI → Anthropic |
-| Document Processing | pypdf, python-docx, reportlab, pytesseract, BeautifulSoup |
-| Frontend | Next.js 15, React 18, TypeScript, Tailwind CSS |
-| Charts / Animation | recharts, framer-motion |
-| Browser Extension | Chrome Manifest V3, vanilla JS |
-| Auth | JWT tokens |
+| Frontend | Next.js 15, TypeScript, Tailwind CSS |
+| Backend | FastAPI (Python), Uvicorn |
+| Auth | Firebase Authentication (Google + email/password) |
+| Database | Firestore (NoSQL) |
+| AI / LLM | Groq (primary, sub-300ms) → OpenRouter free models (fallback) |
+| Hosting | Firebase Hosting (frontend) + Cloud Run (backend) |
+| PDF Export | ReportLab + python-docx |
 
 ---
 
-## Project Structure
+## Project structure
 
 ```
-.
-├── backend/
-│   ├── main.py              # 80+ FastAPI endpoints
-│   ├── agent.py             # LLM fallback chain (Groq → OpenRouter → OpenAI → Anthropic)
-│   ├── prompts.py           # System prompts
-│   ├── tools/               # Feature modules (ATS, coach, battle, radar, export, ...)
-│   ├── library/             # Static data (fonts, templates, personas, action verbs)
-│   ├── auth.py              # JWT auth
-│   ├── db.py                # Session & application persistence
-│   ├── usage.py             # Token/cost tracking
-│   ├── rate_limit.py        # Per-tier rate limiting
-│   └── requirements.txt
-├── frontend/
-│   ├── app/                 # Next.js app router
-│   └── components/          # 40+ UI components
-└── extension/
-    ├── manifest.json         # Manifest V3
-    ├── scrape.js             # Per-ATS selectors + generic fallback
-    ├── content.js            # App tab bridge
-    └── popup.html/js/css     # Extension popup UI
+RO resume-agent/
+├── frontend/               # Next.js app
+│   ├── app/                # App router (page.tsx is the main shell)
+│   ├── components/         # 37 feature components
+│   ├── hooks/              # useAuth, useProfileExtraction, useSessionAutoSave
+│   └── lib/                # api.ts (typed API client), firebase.ts
+│
+├── backend/                # FastAPI server
+│   ├── main.py             # All API routes
+│   ├── agent.py            # LLM orchestrator (Groq → OpenRouter)
+│   ├── auth.py             # Firebase token verification
+│   ├── db.py               # Firestore data layer
+│   ├── firebase_init.py    # Firebase Admin SDK init
+│   ├── routers/me.py       # Auth + per-user endpoints
+│   ├── tools/              # 20+ AI tools (battle, xray, cover letter, etc.)
+│   └── library/            # Templates, personas, fonts, skills taxonomy
+│
+├── firebase.json           # Hosting config + Cloud Run rewrite
+└── .firebaserc             # Firebase project binding
 ```
 
 ---
 
-## Quick Start
+## Running locally
 
 ### Prerequisites
-
-- Python 3.12+
 - Node.js 18+
-- A free [Groq API key](https://console.groq.com) (primary LLM — fast and free)
-- Optionally: OpenRouter, OpenAI, or Anthropic keys for fallback
+- Python 3.11+
+- Firebase project with Auth + Firestore enabled
+- Groq API key (free at console.groq.com)
 
-### 1. Backend
+### 1. Clone and install
 
 ```bash
-cd backend
-cp .env.example .env      # fill in your API keys
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn main:app --reload --port 8000
+git clone https://github.com/rohithkandula19/Ro-Resume-Agent.git
+cd Ro-Resume-Agent
 ```
 
-### 2. Frontend
-
+**Frontend:**
 ```bash
 cd frontend
 npm install
-npm run dev               # runs on http://localhost:3000
 ```
 
-### 3. Chrome Extension
+**Backend:**
+```bash
+cd backend
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
 
-1. Open Chrome → `chrome://extensions`
-2. Enable **Developer mode**
-3. Click **Load unpacked** → select the `extension/` folder
-4. Click the extension icon on any job posting and hit **Analyze in App**
+### 2. Configure environment
 
----
-
-## Environment Variables
-
-Copy `backend/.env.example` to `backend/.env` and fill in:
-
+**`frontend/.env.local`**
 ```env
-# Required — at least one LLM provider
-GROQ_API_KEY=            # free tier, fastest
-OPENROUTER_API_KEY=      # free models available
-OPENAI_API_KEY=          # optional fallback
-ANTHROPIC_API_KEY=       # optional fallback
+NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.firebasestorage.app
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+```
 
-# App
-SECRET_KEY=              # random string for JWT signing
-APP_URL=http://localhost:3000
+**`backend/.env`**
+```env
+GROQ_API_KEY=your_groq_key
+OPENROUTER_API_KEY=your_openrouter_key   # optional
+GOOGLE_APPLICATION_CREDENTIALS=/path/to/firebase-adminsdk.json
+```
 
-# Email (optional — for notifications)
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=
-SMTP_PASSWORD=
-SMTP_FROM=
+### 3. Start both servers
+
+**Backend** (port 8010):
+```bash
+cd backend
+source .venv/bin/activate
+uvicorn main:app --port 8010
+```
+
+**Frontend** (port 3010):
+```bash
+cd frontend
+npm run dev:webpack
+```
+
+Open http://localhost:3010
+
+---
+
+## Deployment
+
+### Backend → Cloud Run
+
+```bash
+cd backend
+gcloud run deploy ro-resume-backend \
+  --source . \
+  --region us-central1 \
+  --allow-unauthenticated \
+  --memory 2Gi \
+  --cpu 2 \
+  --timeout 300
+```
+
+### Frontend → Firebase Hosting
+
+```bash
+cd frontend
+OUTPUT=export npm run build
+firebase deploy --only hosting
 ```
 
 ---
 
-## LLM Routing
+## API overview
 
-The backend tries providers in order and falls back automatically:
+| Method | Path | Description |
+|---|---|---|
+| GET | `/api/meta` | Templates, fonts, personas |
+| POST | `/api/session/new` | Create anonymous session |
+| POST | `/api/build` | Generate + export resume |
+| POST | `/api/ats-score` | Composite ATS score |
+| POST | `/api/chat` | Consultant chat |
+| POST | `/api/battle` | Battle mode analysis |
+| POST | `/api/xray` | Keyword overlay |
+| POST | `/api/cover-letter` | Generate cover letter |
+| POST | `/api/interview-prep` | Interview questions + STAR stories |
+| POST | `/api/mock-interview/turn` | Mock interview turn |
+| GET | `/api/auth/me` | Current user profile |
+| GET | `/api/auth/applications` | Job applications list |
+| GET | `/api/auth/offers` | Offers list |
 
-1. **Groq** — `llama-3.1-8b-instant`, `llama-3.3-70b-versatile` (sub-300ms, free tier)
-2. **OpenRouter** — free Llama, Gemma, Qwen, DeepSeek, Mistral models
-3. **OpenAI** — `gpt-4o-mini`, `gpt-4o`
-4. **Anthropic** — `claude-haiku-4-5`, `claude-sonnet-4-6`
-
-You only need one key to get started. Groq alone is sufficient for most features.
+Full API: see `backend/main.py` and `backend/routers/me.py`
 
 ---
 
-## Extension — Supported Job Boards
+## Firebase setup
 
-LinkedIn · Greenhouse · Lever · Ashby · Indeed · Wellfound · Workable · SmartRecruiters · Y Combinator · generic fallback for any other site
+1. Create a Firebase project at console.firebase.google.com
+2. Enable **Authentication** → Email/Password + Google
+3. Create a **Firestore** database in production mode
+4. Generate a **service account key** (Project Settings → Service Accounts)
+5. Register a **Web app** and copy the config to `frontend/.env.local`
 
 ---
 

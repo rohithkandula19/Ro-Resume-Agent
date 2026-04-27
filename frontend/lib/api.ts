@@ -4,7 +4,7 @@ import { auth } from "./firebase";
 
 const BASE = "/api"; // proxied by next.config.js in dev; Firebase Hosting rewrites in prod
 
-async function getAuthToken(): Promise<string> {
+export async function getAuthToken(): Promise<string> {
   try {
     return (await auth.currentUser?.getIdToken()) ?? "";
   } catch {

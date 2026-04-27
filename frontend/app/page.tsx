@@ -15,34 +15,32 @@ import UserMenu from "@/components/UserMenu";
 // Lazy-loaded tab content — compiled only when the tab is opened.
 // ssr:false skips server prerender (these are client-only anyway) and
 // shaves cold-compile time dramatically.
-const LOAD_OPTS = { ssr: false as const };
-
-const BattleMode          = dynamic(() => import("@/components/BattleMode"), LOAD_OPTS);
-const XrayOverlay         = dynamic(() => import("@/components/XrayOverlay"), LOAD_OPTS);
-const ScanSimulator       = dynamic(() => import("@/components/ScanSimulator"), LOAD_OPTS);
-const PersonaReview       = dynamic(() => import("@/components/PersonaReview"), LOAD_OPTS);
-const CoverLetterCard     = dynamic(() => import("@/components/CoverLetterCard"), LOAD_OPTS);
-const LinkedInPackCard    = dynamic(() => import("@/components/LinkedInPackCard"), LOAD_OPTS);
-const AchievementMiner    = dynamic(() => import("@/components/AchievementMiner"), LOAD_OPTS);
-const GithubImport        = dynamic(() => import("@/components/GithubImport"), LOAD_OPTS);
-const SalaryBand          = dynamic(() => import("@/components/SalaryBand"), LOAD_OPTS);
-const AIAnalyzer          = dynamic(() => import("@/components/AIAnalyzer"), LOAD_OPTS);
-const TailoringDiff       = dynamic(() => import("@/components/TailoringDiff"), LOAD_OPTS);
-const ResumeEditor        = dynamic(() => import("@/components/ResumeEditor"), LOAD_OPTS);
-const ResumeCritiquePanel = dynamic(() => import("@/components/ResumeCritique"), LOAD_OPTS);
-const ResumeAssist        = dynamic(() => import("@/components/ResumeAssist"), LOAD_OPTS);
-const ParserTest          = dynamic(() => import("@/components/ParserTest"), LOAD_OPTS);
-const SessionHistory      = dynamic(() => import("@/components/SessionHistory"), LOAD_OPTS);
-const InterviewPrep       = dynamic(() => import("@/components/InterviewPrep"), LOAD_OPTS);
-const MockInterview       = dynamic(() => import("@/components/MockInterview"), LOAD_OPTS);
-const VersionCompare      = dynamic(() => import("@/components/VersionCompare"), LOAD_OPTS);
-const OfferCompare        = dynamic(() => import("@/components/OfferCompare"), LOAD_OPTS);
-const UsagePanel          = dynamic(() => import("@/components/UsagePanel"), LOAD_OPTS);
-const ScoreHistory        = dynamic(() => import("@/components/ScoreHistory"), LOAD_OPTS);
-const JDAnalyzer          = dynamic(() => import("@/components/JDAnalyzer"), LOAD_OPTS);
-const MultiResumeCompare  = dynamic(() => import("@/components/MultiResumeCompare"), LOAD_OPTS);
-const LinkedInImport      = dynamic(() => import("@/components/LinkedInImport"), LOAD_OPTS);
-const EmailApplyHelper    = dynamic(() => import("@/components/EmailApplyHelper"), LOAD_OPTS);
+const BattleMode          = dynamic(() => import("@/components/BattleMode"), { ssr: false });
+const XrayOverlay         = dynamic(() => import("@/components/XrayOverlay"), { ssr: false });
+const ScanSimulator       = dynamic(() => import("@/components/ScanSimulator"), { ssr: false });
+const PersonaReview       = dynamic(() => import("@/components/PersonaReview"), { ssr: false });
+const CoverLetterCard     = dynamic(() => import("@/components/CoverLetterCard"), { ssr: false });
+const LinkedInPackCard    = dynamic(() => import("@/components/LinkedInPackCard"), { ssr: false });
+const AchievementMiner    = dynamic(() => import("@/components/AchievementMiner"), { ssr: false });
+const GithubImport        = dynamic(() => import("@/components/GithubImport"), { ssr: false });
+const SalaryBand          = dynamic(() => import("@/components/SalaryBand"), { ssr: false });
+const AIAnalyzer          = dynamic(() => import("@/components/AIAnalyzer"), { ssr: false });
+const TailoringDiff       = dynamic(() => import("@/components/TailoringDiff"), { ssr: false });
+const ResumeEditor        = dynamic(() => import("@/components/ResumeEditor"), { ssr: false });
+const ResumeCritiquePanel = dynamic(() => import("@/components/ResumeCritique"), { ssr: false });
+const ResumeAssist        = dynamic(() => import("@/components/ResumeAssist"), { ssr: false });
+const ParserTest          = dynamic(() => import("@/components/ParserTest"), { ssr: false });
+const SessionHistory      = dynamic(() => import("@/components/SessionHistory"), { ssr: false });
+const InterviewPrep       = dynamic(() => import("@/components/InterviewPrep"), { ssr: false });
+const MockInterview       = dynamic(() => import("@/components/MockInterview"), { ssr: false });
+const VersionCompare      = dynamic(() => import("@/components/VersionCompare"), { ssr: false });
+const OfferCompare        = dynamic(() => import("@/components/OfferCompare"), { ssr: false });
+const UsagePanel          = dynamic(() => import("@/components/UsagePanel"), { ssr: false });
+const ScoreHistory        = dynamic(() => import("@/components/ScoreHistory"), { ssr: false });
+const JDAnalyzer          = dynamic(() => import("@/components/JDAnalyzer"), { ssr: false });
+const MultiResumeCompare  = dynamic(() => import("@/components/MultiResumeCompare"), { ssr: false });
+const LinkedInImport      = dynamic(() => import("@/components/LinkedInImport"), { ssr: false });
+const EmailApplyHelper    = dynamic(() => import("@/components/EmailApplyHelper"), { ssr: false });
 import {
   fetchMeta, newSession, buildResume, runXray, runScan, gapAnalysis, atsScore,
   logDownload,
